@@ -26,10 +26,23 @@ public class Reservation {
     @JoinColumn(name = "ch_id")
     private Chambre chambre;
 
-    public Reservation(Integer nbre_personne, Date date, Chambre chambre) {
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "us_id", nullable = false)
+    private User user;
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public Reservation(Integer nbre_personne, Date date, Chambre chambre, User user) {
         this.nbre_personne = nbre_personne;
         this.date = date;
         this.chambre =  chambre;
+        this.user = user;
     }
 
     public Reservation() {

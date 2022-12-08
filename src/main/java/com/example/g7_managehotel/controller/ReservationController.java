@@ -4,6 +4,7 @@ package com.example.g7_managehotel.controller;
 import com.example.g7_managehotel.entities.Reservation;
 import com.example.g7_managehotel.repositories.ChambreRepository;
 import com.example.g7_managehotel.repositories.ReservationRepository;
+import com.example.g7_managehotel.repositories.UserRepository;
 import com.example.g7_managehotel.services.impl.reservationDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -12,12 +13,15 @@ import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Optional;
 
 @Controller
 @RequestMapping("/reservations")
 public class ReservationController {
 
+    @Autowired  private UserRepository userRepository;
     @Autowired
     private ReservationRepository reservationRepository;
     private final ChambreRepository chambreRepository;
@@ -39,6 +43,7 @@ public class ReservationController {
 
         model.addAttribute("reservation", reservation);
         model.addAttribute("listChambres", chambreRepository.findAll());
+        model.addAttribute("listUsers", userRepository.findAll());
 
         return "new_reservations";
     }
@@ -49,6 +54,7 @@ public class ReservationController {
         if (errors.hasErrors())
         {
             model.addAttribute("listChambres", chambreRepository.findAll());
+            model.addAttribute("listUsers", userRepository.findAll());
             return "new_reservations";
         }
 
@@ -56,6 +62,21 @@ public class ReservationController {
 
         return "redirect:/reservations";
     }
+    @GetMapping("/View")
+    public String viewHomePage(Model model, @RequestParam(name="user", defaultValue="") String d)
+    {
+        long num = Long.parseLong(d);
+        if (num == 0)
+            model.addAttribute("listReservations", reservationRepository.findAll());
+        else
+            model.addAttribute("listReservations", reservationRepository.chercherReservationParNumUser(num));
+
+        model.addAttribute("View", d);
+        model.addAttribute("listUsers", userRepository.findAll());
+        return "reservations";
+    }
+
+
     @GetMapping("/update")
     public String showUpdateReservationForm(@RequestParam(name="id") long id, Model model)
     {
@@ -68,6 +89,7 @@ public class ReservationController {
 
         model.addAttribute("reservation",reservation);
         model.addAttribute("listChambres", chambreRepository.findAll());
+        model.addAttribute("listUsers", userRepository.findAll());
 
         return "update_reservations";
     }
